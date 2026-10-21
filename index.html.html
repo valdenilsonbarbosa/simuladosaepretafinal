@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revisão Geral - Avaliação com 40 Questões</title>
+<style>
+:root {
+  --bg:#f4f7fb; --panel:#ffffff; --ink:#172033; --muted:#667085;
+  --line:#dbe3ef; --primary:#2457d6; --primary2:#173d9e; --ok:#198754;
+  --warn:#e9a400; --danger:#c92a2a; --soft:#eef4ff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input{font:inherit}
+.hidden{display:none!important}
+.start-screen{min-height:100vh;display:grid;place-items:center;padding:24px}
+.start-card{width:min(680px,100%);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 12px 36px rgba(23,32,51,.08)}
+.start-card h1{margin:0 0 8px;font-size:30px}
+.start-card p{color:var(--muted);line-height:1.55}
+.rules{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:16px;margin:18px 0}
+.rules ul{margin:8px 0 0;padding-left:20px;line-height:1.65}
+label.name-label{display:block;font-weight:700;margin:18px 0 7px}
+#studentName{width:100%;padding:13px 14px;border:1px solid #b9c4d3;border-radius:10px;outline:none}
+#studentName:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(36,87,214,.12)}
+.primary-btn,.secondary-btn,.danger-btn{border:0;border-radius:10px;padding:12px 16px;font-weight:700;cursor:pointer}
+.primary-btn{background:var(--primary);color:#fff}
+.primary-btn:hover{background:var(--primary2)}
+.secondary-btn{background:#e8eef8;color:#24324a}
+.danger-btn{background:#fff0f0;color:var(--danger);border:1px solid #ffc9c9}
+.app{min-height:100vh}
+.topbar{position:sticky;top:0;z-index:10;height:72px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;gap:16px}
+.student{min-width:0}
+.student strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:48vw}
+.student span{font-size:13px;color:var(--muted)}
+.timer{display:flex;align-items:center;gap:10px;background:#fff7df;border:1px solid #ffe19a;padding:10px 14px;border-radius:12px;font-variant-numeric:tabular-nums;font-weight:800}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 72px)}
+.sidebar{background:#fbfcfe;border-right:1px solid var(--line);padding:18px;position:sticky;top:72px;height:calc(100vh - 72px);overflow:auto}
+.sidebar h2{font-size:14px;margin:0 0 12px;color:#344054}
+.qgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.qnav{height:38px;border-radius:9px;border:1px solid #cdd7e5;background:#fff;color:#344054;font-weight:700;cursor:pointer}
+.qnav.answered{background:#e9f7ef;border-color:#a7dfbd;color:#146c43}
+.qnav.current{background:var(--primary);border-color:var(--primary);color:#fff}
+.legend{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.7}
+.main{padding:28px;max-width:980px;width:100%;margin:0 auto}
+.question-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 8px 24px rgba(23,32,51,.05)}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.badge{font-size:12px;font-weight:700;padding:6px 9px;border-radius:999px;background:var(--soft);color:#2f4a86}
+.question-card h2{font-size:21px;line-height:1.45;margin:0 0 22px}
+.options{display:grid;gap:11px}
+.option{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid #d9e2ef;border-radius:12px;cursor:pointer;background:#fff;transition:.15s}
+.option:hover{border-color:#9eb5e5;background:#fbfdff}
+.option.selected{border-color:var(--primary);background:#f2f6ff}
+.option input{margin-top:3px;accent-color:var(--primary)}
+.letter{font-weight:800;min-width:22px}
+.actions{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap}
+.progress{font-size:13px;color:var(--muted);margin-top:13px}
+.finish-wrap{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+.result{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px}
+.result h2{margin-top:0}
+.score{font-size:42px;font-weight:900;color:var(--primary);margin:8px 0}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0 22px}
+.stat{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.locked-note{background:#fff3f3;border:1px solid #ffc9c9;color:#922b2b;padding:12px 14px;border-radius:10px;margin-bottom:16px}
+@media(max-width:800px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .qgrid{grid-template-columns:repeat(10,1fr)}
+  .main{padding:16px}
+  .question-card{padding:20px}
+  .topbar{padding:0 12px}
+}
+@media(max-width:520px){
+  .qgrid{grid-template-columns:repeat(8,1fr)}
+  .timer{padding:8px 10px;font-size:14px}
+  .student strong{max-width:42vw}
+}
+@media print{
+  .no-print{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<section id="startScreen" class="start-screen">
+  <div class="start-card">
+    <h1>Revisão Geral — 40 Questões</h1>
+    <p>Avaliação objetiva com cinco alternativas por questão, distribuída entre diferentes níveis de dificuldade e eixos da formação técnica.</p>
+    <div class="rules">
+      <strong>Regras da avaliação</strong>
+      <ul>
+        <li>Tempo total: <strong>2 horas</strong>, com relógio regressivo visível.</li>
+        <li>Navegação livre entre as 40 questões pelos botões laterais.</li>
+        <li>É possível alterar respostas enquanto a prova estiver em andamento.</li>
+        <li>Quando o tempo zerar, a prova será bloqueada automaticamente.</li>
+        <li>Ao finalizar, será exibida a pontuação e liberado o relatório para salvar em PDF.</li>
+      </ul>
+    </div>
+    <label class="name-label" for="studentName">Nome completo do aluno</label>
+    <input id="studentName" type="text" autocomplete="name" placeholder="Digite seu nome completo">
+    <div style="margin-top:16px">
+      <button id="startBtn" class="primary-btn">Iniciar avaliação</button>
+    </div>
+  </div>
+</section>
+
+<section id="examApp" class="app hidden">
+  <header class="topbar">
+    <div class="student">
+      <strong id="studentDisplay"></strong>
+      <span>Revisão geral</span>
+    </div>
+    <div class="timer" aria-live="polite">⏱ <span id="timer">02:00:00</span></div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Questões</h2>
+      <div id="questionGrid" class="qgrid"></div>
+      <div class="legend">Verde: respondida<br>Azul: questão atual</div>
+      <div class="finish-wrap">
+        <button id="finishBtn" class="danger-btn" style="width:100%">Finalizar prova</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div id="questionArea"></div>
+      <section id="resultArea" class="result hidden"></section>
+    </main>
+  </div>
+</section>
+
+<script>
+const QUESTIONS = [{"id": 1, "topic": "Informática básica", "difficulty": "Fácil", "prompt": "Qual é a finalidade principal do Microsoft PowerPoint?", "options": ["Editar exclusivamente códigos-fonte.", "Gerenciar bancos de dados relacionais.", "Compactar arquivos do sistema operacional.", "Criar planilhas com fórmulas financeiras.", "Criar e apresentar slides com textos, imagens, gráficos e outros recursos multimídia."], "answer": "E"}, {"id": 2, "topic": "Versionamento", "difficulty": "Fácil", "prompt": "Qual comando inicia um novo repositório Git na pasta atual?", "options": ["git start", "git create", "git new", "git init", "git begin"], "answer": "D"}, {"id": 3, "topic": "Implementação de sistemas", "difficulty": "Fácil", "prompt": "Em HTML5, qual elemento é apropriado para representar o cabeçalho principal de uma página ou seção?", "options": ["<header>", "<head>", "<section-head>", "<heading>", "<top>"], "answer": "A"}, {"id": 4, "topic": "Banco de dados", "difficulty": "Fácil", "prompt": "Em uma tabela relacional, qual é a função de uma chave primária?", "options": ["Substituir todas as chaves estrangeiras.", "Identificar unicamente cada registro da tabela.", "Ordenar automaticamente os registros.", "Armazenar somente valores numéricos.", "Permitir valores duplicados obrigatoriamente."], "answer": "B"}, {"id": 5, "topic": "Lógica de programação", "difficulty": "Fácil", "prompt": "Na expressão lógica A AND B, quando o resultado é verdadeiro?", "options": ["Somente quando A e B são verdadeiros.", "Somente quando A é falsa.", "Somente quando B é falsa.", "Quando A e B têm valores diferentes.", "Quando pelo menos uma condição é verdadeira."], "answer": "A"}, {"id": 6, "topic": "Testes de sistemas", "difficulty": "Fácil", "prompt": "O que um teste unitário procura verificar?", "options": ["O comportamento de todos os usuários simultaneamente.", "A aceitação comercial do produto.", "Somente a aparência final do sistema.", "A infraestrutura de toda a internet.", "Uma unidade pequena e isolada do software, como uma função ou método."], "answer": "E"}, {"id": 7, "topic": "Modelagem de sistemas", "difficulty": "Fácil", "prompt": "Em um diagrama de casos de uso UML, o que representa um ator?", "options": ["Um papel externo que interage com o sistema.", "Uma linha de código executável.", "Uma variável global do programa.", "Um erro encontrado durante o teste.", "Uma tabela do banco de dados."], "answer": "A"}, {"id": 8, "topic": "Eletrônica", "difficulty": "Fácil", "prompt": "Qual é uma função comum de um resistor em um circuito eletrônico?", "options": ["Gerar código HTML.", "Limitar a corrente elétrica.", "Substituir qualquer fonte de alimentação.", "Armazenar arquivos digitais.", "Converter automaticamente corrente em dados de rede."], "answer": "B"}, {"id": 9, "topic": "IoT", "difficulty": "Fácil", "prompt": "Qual descrição melhor representa a Internet das Coisas (IoT)?", "options": ["Um sistema operacional exclusivo de servidores.", "Uma linguagem criada para substituir o JavaScript.", "Somente computadores de mesa conectados por cabo.", "Um tipo de banco de dados sem tabelas.", "Objetos físicos conectados que coletam, trocam ou utilizam dados."], "answer": "E"}, {"id": 10, "topic": "Informática básica", "difficulty": "Médio", "prompt": "Qual característica diferencia a memória RAM de um armazenamento como SSD?", "options": ["O SSD só funciona enquanto o computador está ligado.", "O SSD não consegue guardar arquivos.", "A RAM é volátil e normalmente perde seus dados quando a energia é desligada.", "A RAM é sempre mais lenta que um disco rígido.", "A RAM é usada apenas para armazenar vídeos."], "answer": "C"}, {"id": 11, "topic": "Versionamento", "difficulty": "Médio", "prompt": "Qual comando mostra, entre outras informações, arquivos modificados, preparados e não rastreados em um repositório Git?", "options": ["git history", "git status", "git files", "git show-all", "git inspect"], "answer": "B"}, {"id": 12, "topic": "Implementação de sistemas", "difficulty": "Médio", "prompt": "No JavaScript executado no navegador, qual instrução seleciona o primeiro elemento que corresponde ao seletor CSS informado?", "options": ["html.query()", "window.selectCSS()", "document.firstElement()", "document.querySelector()", "document.getAll()"], "answer": "D"}, {"id": 13, "topic": "Banco de dados", "difficulty": "Médio", "prompt": "Qual consulta SQL retorna apenas os clientes cujo campo cidade é igual a 'Lagarto'?", "options": ["GET * clientes WHEN cidade = 'Lagarto';", "SELECT cidade FROM clientes = 'Lagarto';", "SELECT clientes WHERE * cidade IS 'Lagarto';", "SELECT * FROM clientes WHERE cidade = 'Lagarto';", "SELECT * FROM clientes ORDER BY cidade = 'Lagarto';"], "answer": "D"}, {"id": 14, "topic": "Lógica de programação", "difficulty": "Médio", "prompt": "Quando a quantidade de repetições é conhecida previamente, qual estrutura costuma ser adequada?", "options": ["class", "import", "switch", "for", "try"], "answer": "D"}, {"id": 15, "topic": "Testes de sistemas", "difficulty": "Médio", "prompt": "Depois de corrigir um defeito, a equipe executa novamente testes antigos para verificar se algo que funcionava deixou de funcionar. Que tipo de teste é esse?", "options": ["Teste exploratório exclusivamente visual.", "Teste de instalação física.", "Teste de regressão.", "Teste de carga.", "Teste de usabilidade sem execução do sistema."], "answer": "C"}, {"id": 16, "topic": "Modelagem de sistemas", "difficulty": "Médio", "prompt": "Qual diagrama UML mostra a troca de mensagens entre participantes ao longo do tempo?", "options": ["Diagrama de implantação.", "Diagrama de casos de uso.", "Diagrama de componentes.", "Diagrama de pacotes.", "Diagrama de sequência."], "answer": "E"}, {"id": 17, "topic": "Eletrônica", "difficulty": "Médio", "prompt": "Ao ligar um LED comum em corrente contínua, qual cuidado é correto?", "options": ["Respeitar a polaridade do LED e usar limitação de corrente adequada.", "Retirar toda resistência do circuito.", "Curto-circuitar os terminais antes de energizar.", "Inverter sempre a polaridade para aumentar o brilho.", "Ligar diretamente a qualquer tensão sem resistor."], "answer": "A"}, {"id": 18, "topic": "IoT", "difficulty": "Médio", "prompt": "Em aplicações IoT, para que o protocolo MQTT é frequentemente utilizado?", "options": ["Compilação de folhas de estilo CSS.", "Troca leve de mensagens entre dispositivos e serviços usando publicação e assinatura.", "Edição de imagens vetoriais.", "Criação de tabelas HTML.", "Formatação de discos rígidos."], "answer": "B"}, {"id": 19, "topic": "Informática básica", "difficulty": "Fácil", "prompt": "Qual é uma função essencial de um sistema operacional?", "options": ["Criar automaticamente todos os documentos do usuário.", "Funcionar somente como navegador de internet.", "Converter todo arquivo em apresentação.", "Gerenciar recursos de hardware e oferecer serviços para os programas.", "Substituir fisicamente o processador."], "answer": "D"}, {"id": 20, "topic": "Versionamento", "difficulty": "Difícil", "prompt": "Durante um merge, o Git informa conflito no mesmo trecho de um arquivo. O que isso significa?", "options": ["Todas as branches foram mescladas com sucesso.", "O Git já escolheu silenciosamente a melhor versão.", "Há alterações incompatíveis naquele trecho e alguém precisa decidir como combiná-las.", "O arquivo deixou de poder ser versionado permanentemente.", "O repositório foi apagado automaticamente."], "answer": "C"}, {"id": 21, "topic": "Implementação de sistemas", "difficulty": "Difícil", "prompt": "Em um formulário HTML tratado por JavaScript, para que serve event.preventDefault() no evento submit?", "options": ["Impedir o comportamento padrão de envio para que o código possa tratar o formulário.", "Excluir o formulário da página.", "Transformar o formulário em uma tabela.", "Desativar definitivamente o JavaScript do navegador.", "Apagar todos os valores dos campos automaticamente."], "answer": "A"}, {"id": 22, "topic": "Banco de dados", "difficulty": "Difícil", "prompt": "Qual objetivo está associado à Terceira Forma Normal (3FN) em um banco relacional?", "options": ["Impedir qualquer relacionamento entre tabelas.", "Reduzir dependências transitivas de atributos não-chave em relação à chave.", "Duplicar dados para aumentar a redundância.", "Eliminar todas as chaves primárias.", "Colocar todas as informações em uma única tabela."], "answer": "B"}, {"id": 23, "topic": "Lógica de programação", "difficulty": "Difícil", "prompt": "Considere: x = 2; y = 3; x = x + y; y = x * 2. Quais são os valores finais de x e y?", "options": ["x = 3 e y = 10", "x = 5 e y = 6", "x = 5 e y = 10", "x = 10 e y = 5", "x = 2 e y = 6"], "answer": "C"}, {"id": 24, "topic": "Testes de sistemas", "difficulty": "Difícil", "prompt": "Um campo aceita idades de 18 a 60 anos, inclusive. Pelo critério de análise de valor limite, qual conjunto é especialmente relevante?", "options": ["20, 40 e 50", "18, 30 e 60 apenas", "25, 30 e 35", "0, 100 e 1000", "17, 18, 19, 59, 60 e 61"], "answer": "E"}, {"id": 25, "topic": "Modelagem de sistemas", "difficulty": "Difícil", "prompt": "Em UML, o que significa a multiplicidade 1..* em uma associação?", "options": ["No máximo um elemento.", "Quantidade ilimitada incluindo obrigatoriamente zero.", "Somente dois elementos.", "Exatamente zero elementos.", "De um até muitos elementos."], "answer": "E"}, {"id": 26, "topic": "Eletrônica", "difficulty": "Difícil", "prompt": "Um resistor de 1 kΩ é ligado a uma fonte ideal de 12 V. Pela Lei de Ohm, qual é aproximadamente a corrente no resistor?", "options": ["1,2 mA", "12 mA", "0,12 mA", "12 A", "120 mA"], "answer": "B"}, {"id": 27, "topic": "IoT", "difficulty": "Difícil", "prompt": "Em uma solução IoT, qual sequência representa de forma coerente um fluxo de automação?", "options": ["Roteador executa toda medição física sem sensores.", "HTML coleta temperatura diretamente sem hardware → resistor envia e-mail.", "Atuador mede a grandeza → sensor apaga os dados → rede desliga.", "Banco de dados substitui o sensor → CSS controla o motor.", "Sensor coleta dados → sistema processa a informação → atuador executa uma ação."], "answer": "E"}, {"id": 28, "topic": "Informática básica", "difficulty": "Médio", "prompt": "Qual extensão está normalmente associada a uma pasta de trabalho do Microsoft Excel moderno?", "options": [".docx", ".html", ".pptx", ".xlsx", ".mp3"], "answer": "D"}, {"id": 29, "topic": "Versionamento", "difficulty": "Fácil", "prompt": "O que o comando git clone faz?", "options": ["Publica automaticamente um site no GitHub Pages.", "Transforma arquivos HTML em PDF.", "Cria uma cópia local de um repositório existente.", "Apaga o histórico do repositório remoto.", "Cria somente uma branch vazia."], "answer": "C"}, {"id": 30, "topic": "Implementação de sistemas", "difficulty": "Fácil", "prompt": "No elemento HTML <img>, qual é a principal finalidade do atributo alt?", "options": ["Fornecer uma descrição textual alternativa da imagem.", "Aumentar obrigatoriamente a resolução da imagem.", "Criar uma animação CSS automaticamente.", "Definir a linguagem JavaScript usada na página.", "Conectar a página a um banco SQL."], "answer": "A"}, {"id": 31, "topic": "Banco de dados", "difficulty": "Fácil", "prompt": "Para que serve uma chave estrangeira em uma tabela?", "options": ["Executar comandos JavaScript.", "Garantir que todos os valores da coluna sejam iguais.", "Substituir o banco de dados por arquivos de texto.", "Referenciar uma chave de outra tabela e ajudar a representar relacionamentos.", "Criar cópias de segurança automaticamente."], "answer": "D"}, {"id": 32, "topic": "Lógica de programação", "difficulty": "Médio", "prompt": "Em JavaScript, qual é o índice do primeiro elemento de um array?", "options": ["1", "-1", "0", "Depende sempre do tamanho do array.", "10"], "answer": "C"}, {"id": 33, "topic": "Testes de sistemas", "difficulty": "Médio", "prompt": "No teste caixa-preta, o foco principal está em:", "options": ["Entradas e saídas observáveis, sem depender da estrutura interna do código.", "Inspecionar exclusivamente o hardware do computador.", "Verificar apenas a quantidade de comentários no código.", "Eliminar a necessidade de requisitos.", "Reescrever o código-fonte durante cada teste."], "answer": "A"}, {"id": 34, "topic": "Modelagem de sistemas", "difficulty": "Médio", "prompt": "Qual diagrama UML é apropriado para representar classes, atributos, operações e relacionamentos?", "options": ["Diagrama de sequência.", "Diagrama de classes.", "Diagrama de casos de uso.", "Diagrama de comunicação de rede física.", "Diagrama de atividades apenas."], "answer": "B"}, {"id": 35, "topic": "Eletrônica", "difficulty": "Médio", "prompt": "Qual alternativa descreve corretamente um sinal digital binário?", "options": ["Assume obrigatoriamente todos os valores contínuos entre dois limites.", "Não pode ser processado por microcontroladores.", "É sempre uma onda senoidal de alta tensão.", "Trabalha com estados discretos, comumente representados por 0 e 1.", "Existe apenas em circuitos sem alimentação."], "answer": "D"}, {"id": 36, "topic": "IoT", "difficulty": "Médio", "prompt": "O sensor DHT22 é comumente usado em projetos com microcontroladores para medir:", "options": ["Posição GPS e velocidade.", "Tensão da rede elétrica e corrente alternada.", "Som e luminosidade exclusivamente.", "Distância por ultrassom e pressão.", "Temperatura e umidade."], "answer": "E"}, {"id": 37, "topic": "Versionamento", "difficulty": "Difícil", "prompt": "Qual é uma vantagem importante de cada integrante de uma dupla desenvolver em sua própria branch?", "options": ["Permitir trabalho paralelo com isolamento das alterações antes da integração.", "Eliminar a necessidade de merge em todos os casos.", "Tornar impossível comparar versões.", "Impedir qualquer histórico de commits.", "Fazer o Git aceitar somente um arquivo por vez."], "answer": "A"}, {"id": 38, "topic": "Implementação de sistemas", "difficulty": "Difícil", "prompt": "Uma página tem muitos botões criados dinamicamente dentro de um mesmo contêiner. Qual técnica pode reduzir a necessidade de registrar um listener separado em cada botão?", "options": ["Remoção do DOM antes de cada evento.", "Uso exclusivo de estilos inline.", "Delegação de eventos no elemento ancestral.", "Duplicação completa do HTML para cada clique.", "Desativação de bubbling para toda a página."], "answer": "C"}, {"id": 39, "topic": "Banco de dados", "difficulty": "Difícil", "prompt": "O que um INNER JOIN retorna, em sua forma típica, ao relacionar duas tabelas?", "options": ["Todas as linhas de ambas as tabelas, mesmo sem correspondência.", "Linhas que possuem correspondência segundo a condição de junção.", "Somente registros duplicados da primeira tabela.", "Nenhuma linha quando existem chaves estrangeiras.", "Apenas as colunas que são chaves primárias."], "answer": "B"}, {"id": 40, "topic": "Lógica de programação", "difficulty": "Difícil", "prompt": "Considere a função JavaScript: function dobro(n){ return n * 2; } const r = dobro(4) + 1; Qual será o valor de r?", "options": ["5", "10", "9", "4", "8"], "answer": "C"}];
+const LETTERS = ['A','B','C','D','E'];
+const TOTAL_SECONDS = 2 * 60 * 60;
+
+let current = 0;
+let answers = Array(QUESTIONS.length).fill(null);
+let remaining = TOTAL_SECONDS;
+let intervalId = null;
+let finished = false;
+let studentName = '';
+
+const startScreen = document.getElementById('startScreen');
+const examApp = document.getElementById('examApp');
+const nameInput = document.getElementById('studentName');
+const studentDisplay = document.getElementById('studentDisplay');
+const questionGrid = document.getElementById('questionGrid');
+const questionArea = document.getElementById('questionArea');
+const resultArea = document.getElementById('resultArea');
+const timerEl = document.getElementById('timer');
+const finishBtn = document.getElementById('finishBtn');
+
+document.getElementById('startBtn').addEventListener('click', startExam);
+finishBtn.addEventListener('click', () => finishExam(false));
+
+function startExam() {
+  const value = nameInput.value.trim();
+  if (value.length < 3) {
+    alert('Digite o nome completo do aluno antes de iniciar.');
+    nameInput.focus();
+    return;
+  }
+  studentName = value;
+  studentDisplay.textContent = studentName;
+  startScreen.classList.add('hidden');
+  examApp.classList.remove('hidden');
+  buildNavigation();
+  renderQuestion();
+  updateTimer();
+  intervalId = setInterval(() => {
+    remaining--;
+    updateTimer();
+    if (remaining <= 0) {
+      clearInterval(intervalId);
+      remaining = 0;
+      updateTimer();
+      finishExam(true);
+    }
+  }, 1000);
+}
+
+function buildNavigation() {
+  questionGrid.innerHTML = '';
+  QUESTIONS.forEach((q, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'qnav';
+    btn.textContent = q.id;
+    btn.setAttribute('aria-label', `Ir para a questão ${q.id}`);
+    btn.addEventListener('click', () => {
+      if (finished) return;
+      current = idx;
+      renderQuestion();
+      refreshNavigation();
+    });
+    questionGrid.appendChild(btn);
+  });
+  refreshNavigation();
+}
+
+function refreshNavigation() {
+  [...questionGrid.children].forEach((btn, idx) => {
+    btn.classList.toggle('answered', answers[idx] !== null);
+    btn.classList.toggle('current', idx === current && !finished);
+  });
+}
+
+function renderQuestion() {
+  if (finished) return;
+  const q = QUESTIONS[current];
+  const selected = answers[current];
+
+  questionArea.innerHTML = `
+    <article class="question-card">
+      <div class="meta">
+        <span class="badge">Questão ${q.id} de ${QUESTIONS.length}</span>
+        <span class="badge">${escapeHtml(q.topic)}</span>
+        <span class="badge">Nível: ${escapeHtml(q.difficulty)}</span>
+      </div>
+      <h2>${escapeHtml(q.prompt)}</h2>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <label class="option ${selected === LETTERS[i] ? 'selected' : ''}">
+            <input type="radio" name="q${q.id}" value="${LETTERS[i]}" ${selected === LETTERS[i] ? 'checked' : ''}>
+            <span class="letter">${LETTERS[i]})</span>
+            <span>${escapeHtml(opt)}</span>
+          </label>
+        `).join('')}
+      </div>
+      <div class="actions">
+        <button class="secondary-btn" id="prevBtn" ${current === 0 ? 'disabled' : ''}>← Anterior</button>
+        <button class="primary-btn" id="nextBtn" ${current === QUESTIONS.length - 1 ? 'disabled' : ''}>Próxima →</button>
+      </div>
+      <div class="progress">Respondidas: ${answers.filter(Boolean).length} de ${QUESTIONS.length}</div>
+    </article>
+  `;
+
+  questionArea.querySelectorAll('input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', e => {
+      answers[current] = e.target.value;
+      renderQuestion();
+      refreshNavigation();
+    });
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    if (current > 0) { current--; renderQuestion(); refreshNavigation(); }
+  });
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (current < QUESTIONS.length - 1) { current++; renderQuestion(); refreshNavigation(); }
+  });
+}
+
+function updateTimer() {
+  const h = Math.floor(remaining / 3600);
+  const m = Math.floor((remaining % 3600) / 60);
+  const s = remaining % 60;
+  timerEl.textContent = [h,m,s].map(v => String(v).padStart(2,'0')).join(':');
+  if (remaining <= 600) timerEl.parentElement.style.background = '#fff0f0';
+}
+
+function finishExam(byTime) {
+  if (finished) return;
+  if (!byTime) {
+    const unanswered = answers.filter(a => a === null).length;
+    const msg = unanswered
+      ? `Ainda existem ${unanswered} questão(ões) sem resposta. Deseja finalizar mesmo assim?`
+      : 'Deseja finalizar a prova agora?';
+    if (!confirm(msg)) return;
+  }
+
+  finished = true;
+  clearInterval(intervalId);
+  finishBtn.disabled = true;
+
+  const correct = QUESTIONS.reduce((sum, q, idx) => sum + (answers[idx] === q.answer ? 1 : 0), 0);
+  const unanswered = answers.filter(a => a === null).length;
+  const wrong = QUESTIONS.length - correct - unanswered;
+  const percent = (correct / QUESTIONS.length) * 100;
+
+  questionArea.innerHTML = '';
+  resultArea.classList.remove('hidden');
+  resultArea.innerHTML = `
+    ${byTime ? '<div class="locked-note">O tempo terminou. A prova foi bloqueada e não aceita novas respostas.</div>' : ''}
+    <h2>Avaliação finalizada</h2>
+    <div>Aluno: <strong>${escapeHtml(studentName)}</strong></div>
+    <div class="score">${correct} / ${QUESTIONS.length}</div>
+    <div>${percent.toFixed(1).replace('.', ',')}% de acertos</div>
+    <div class="stats">
+      <div class="stat"><strong>${correct}</strong><br>Acertos</div>
+      <div class="stat"><strong>${wrong}</strong><br>Erros</div>
+      <div class="stat"><strong>${unanswered}</strong><br>Não respondidas</div>
+    </div>
+    <button id="pdfBtn" class="primary-btn">Gerar relatório em PDF</button>
+  `;
+
+  [...questionGrid.children].forEach(btn => btn.disabled = true);
+  document.getElementById('pdfBtn').addEventListener('click', generatePDFReport);
+}
+
+function generatePDFReport() {
+  const correct = QUESTIONS.reduce((sum, q, idx) => sum + (answers[idx] === q.answer ? 1 : 0), 0);
+  const unanswered = answers.filter(a => a === null).length;
+  const wrong = QUESTIONS.length - correct - unanswered;
+  const percent = (correct / QUESTIONS.length) * 100;
+
+  const rows = QUESTIONS.map((q, idx) => {
+    const markedLetter = answers[idx] || '—';
+    const markedIndex = markedLetter === '—' ? -1 : LETTERS.indexOf(markedLetter);
+    const markedText = markedIndex >= 0 ? q.options[markedIndex] : 'Não respondida';
+    const correctIndex = LETTERS.indexOf(q.answer);
+    const correctText = q.options[correctIndex];
+    const status = answers[idx] === null ? 'Não respondida' : (answers[idx] === q.answer ? 'Acertou' : 'Errou');
+    const statusClass = status === 'Acertou' ? 'ok' : (status === 'Errou' ? 'err' : 'blank');
+
+    return `
+      <section class="question-report">
+        <div class="qhead">
+          <strong>Questão ${q.id}</strong>
+          <span>${escapeHtml(q.topic)} • ${escapeHtml(q.difficulty)}</span>
+          <span class="${statusClass}">${status}</span>
+        </div>
+        <div class="statement">${escapeHtml(q.prompt)}</div>
+        <div class="answer-line"><strong>Resposta do aluno:</strong> ${markedLetter}${markedLetter !== '—' ? ') ' : ''}${escapeHtml(markedText)}</div>
+        <div class="answer-line correct"><strong>Resposta correta:</strong> ${q.answer}) ${escapeHtml(correctText)}</div>
+      </section>
+    `;
+  }).join('');
+
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('O navegador bloqueou a nova janela. Permita pop-ups para gerar o PDF.');
+    return;
+  }
+
+  const reportHtml = `
+  <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>Relatório da avaliação</title>
+  <style>
+    body{font-family:Arial,sans-serif;color:#111;margin:26px;line-height:1.4}
+    h1{font-size:22px;margin:0 0 6px}
+    .summary{margin:14px 0 22px;padding:12px;border:1px solid #bbb;border-radius:8px}
+    .summary-grid{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px}
+    .question-report{page-break-inside:avoid;border:1px solid #ccc;border-radius:8px;padding:12px;margin:0 0 12px}
+    .qhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+    .qhead span{font-size:12px;color:#555}
+    .qhead .ok{color:#146c43;font-weight:700}
+    .qhead .err{color:#b42318;font-weight:700}
+    .qhead .blank{color:#667085;font-weight:700}
+    .statement{font-weight:600;margin-bottom:9px}
+    .answer-line{margin:4px 0}
+    .correct{color:#146c43}
+    .note{font-size:11px;color:#555;margin-top:14px}
+    @media print{
+      button{display:none}
+      body{margin:12mm}
+    }
+  </style></head><body>
+  <h1>Relatório da Avaliação — Revisão Geral</h1>
+  <div>Aluno: <strong>${escapeHtml(studentName)}</strong></div>
+
+  <div class="summary">
+    <strong>Pontuação final:</strong> ${correct} de ${QUESTIONS.length} (${percent.toFixed(1).replace('.', ',')}%)
+    <div class="summary-grid">
+      <span><strong>${correct}</strong> acertos</span>
+      <span><strong>${wrong}</strong> erros</span>
+      <span><strong>${unanswered}</strong> não respondidas</span>
+    </div>
+  </div>
+
+  ${rows}
+
+  <p class="note">Para salvar: escolha “Salvar como PDF” na janela de impressão do navegador.</p>
+  <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script>
+  </body></html>`;
+  win.document.open();
+  win.document.write(reportHtml);
+  win.document.close();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+}
+</script>
+</body>
+</html>
